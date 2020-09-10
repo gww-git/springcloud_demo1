@@ -1,0 +1,35 @@
+一个公共模块  api，提供实体类，供服务消费方调用，不使用eureka,
+
+不使用eureka的方式调用其他的服务，使用Resttemplate调用，在服务消费消费端添加一个Resttemplate的bean
+
+@Configuration
+public class Config{      //为客户端提供的一个更高包装的rest模板
+
+    @Bean
+    @Primary     //注意，必须使用该注解，不然报找不到服务
+    public RestTemplate getRestTemplate(){
+        return new RestTemplate();
+    }
+}
+
+
+ 如服务端的接口
+    @GetMapping("/getAll")
+    @ResponseBody
+    public List<User> ByUserAll(){
+        return iUserService.ByUserAll();
+    }
+
+
+    而服务端配置了Resttemplate后
+
+         private final static String PROVIDE_HTTP="http://localhost:8001";
+
+        @Autowired
+        private RestTemplate restTemplate;
+
+          @RequestMapping("/users")
+            public List<User> getUserAll(){
+                return restTemplate.getForObject(PROVIDE_HTTP+"/admin/getAll",List.class);
+            }
+
